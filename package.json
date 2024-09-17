@@ -1,6 +1,7 @@
 {
   "name": "winclock",
   "description": "beautiful clock application",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/binary-blazer/winclock.git"
