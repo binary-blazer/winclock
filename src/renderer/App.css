@@ -1,0 +1,67 @@
+@font-face {
+  font-family: 'CityLight Dots';
+  src: url('./fonts/dotty.ttf') format('truetype');
+}
+
+body {
+  position: relative;
+  user-select: none !important;
+  color: white;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.644);
+  font-family: sans-serif;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hello {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.tabs {
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.clock {
+  font-family: 'CityLight Dots', sans-serif;
+  font-size: 195px;
+}
+
+.alarms {
+  text-align: center;
+}
+
+.alarms input {
+  margin-right: 10px;
+  padding: 5px;
+  font-size: 16px;
+}
+
+.alarms button {
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.alarms ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.alarms li {
+  margin: 5px 0;
+  font-size: 18px;
+}
