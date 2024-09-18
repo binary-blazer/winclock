@@ -8,7 +8,6 @@ import { Icns, IcnsImage } from '@fiahfy/icns';
 const iconPath = path.resolve(__dirname, '../assets/icon.png');
 const outputDir = path.resolve(__dirname, '../assets/icons');
 
-
 const sizes = [16, 24, 32, 48, 64, 96, 128, 256, 512, 1024];
 
 async function resizeIcon() {

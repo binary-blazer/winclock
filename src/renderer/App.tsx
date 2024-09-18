@@ -1,11 +1,11 @@
-/* eslint-disable prefer-template */
-/* eslint-disable react/no-array-index-key */
+/* eslint-disable prettier/prettier */
 /* eslint-disable react/button-has-type */
-
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import 'tailwindcss/tailwind.css';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 function Clock() {
   const [time, setTime] = useState(new Date());
@@ -13,7 +13,7 @@ function Clock() {
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(new Date());
-    }, 10); // Update every 10 milliseconds
+    }, 10);
     return () => clearInterval(timer);
   }, []);
 
@@ -26,28 +26,6 @@ function Alarms() {
   const [alarms, setAlarms] = useState<
     { id: number; time: string; label: string }[]
   >([]);
-
-  /*
-  const [newAlarm, setNewAlarm] = useState('');
-
-  const addAlarm = () => {
-    if (newAlarm) {
-      window.electron.ipcRenderer.sendMessage('add-alarm', {
-        time: newAlarm,
-        label: 'Alarm #' + (alarms.length + 1),
-      });
-      setNewAlarm('');
-      setAlarms([
-        ...alarms,
-        {
-          id: alarms.length + 1,
-          time: newAlarm,
-          label: 'Alarm #' + (alarms.length + 1),
-        },
-      ]);
-    }
-  };
-  */
 
   useEffect(() => {
     window.electron.ipcRenderer.once('alarms', (arg: any) => {
@@ -98,6 +76,12 @@ function Hello() {
     window.electron.ipcRenderer.sendMessage('current-tab');
   }, []);
 
+  const variants = {
+    initial: { opacity: 0, y: 50 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -50 },
+  };
+
   return (
     <div className="hello">
       {loading ? (
@@ -105,26 +89,58 @@ function Hello() {
           <i className="fas fa-spinner-third animate-spin text-4xl" />
         </div>
       ) : (
-        <>
-          <div className="absolute top-[10%] shadow-lg left-1/2 -translate-x-1/2 tabs bg-zinc-800/20 w-auto px-0 py-2 rounded-lg">
-            <button
-              onClick={() => handleTab('clock')}
-              className={
-                activeTab === 'clock' ? 'bg-zinc-900/60 rounded-lg' : ''
-              }
-            >
-              Current Time
-            </button>
-            <button
-              onClick={() => handleTab('alarms')}
-              className={activeTab === 'alarms' ? 'bg-zinc-900 rounded-lg' : ''}
-            >
-              Alarms
-            </button>
+        <div className="flex flex-row items-start justify-center h-full w-full">
+          <div className="flex flex-col items-center justify-start w-20 px-2 py-12 gap-3 h-full bg-zinc-800/20">
+            <div className="relative flex flex-row w-full justify-center">
+              <button
+                className={`py-2 px-4 rounded-lg ${activeTab === 'clock' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => handleTab('clock')}
+              >
+                <i className="fas fa-clock" />
+              </button>
+              {activeTab === 'clock' && (
+                <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
+              )}
+            </div>
+            <div className="relative flex flex-row w-full justify-center">
+              <button
+                className={`relative py-2 px-4 rounded-lg ${activeTab === 'alarms' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => handleTab('alarms')}
+              >
+                <i className="fas fa-bell" />
+              </button>
+              {activeTab === 'alarms' && (
+                <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
+              )}
+            </div>
           </div>
-          {activeTab === 'clock' && <Clock />}
-          {activeTab === 'alarms' && <Alarms />}
-        </>
+          <div className="flex flex-col items-center justify-center w-full h-full">
+            {activeTab === 'clock' && (
+              <motion.div
+                key="clock"
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={variants}
+                transition={{ duration: 0.5 }}
+              >
+                <Clock />
+              </motion.div>
+            )}
+            {activeTab === 'alarms' && (
+              <motion.div
+                key="alarms"
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={variants}
+                transition={{ duration: 0.5 }}
+              >
+                <Alarms />
+              </motion.div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
