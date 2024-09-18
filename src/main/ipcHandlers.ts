@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable prettier/prettier */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable import/prefer-default-export */
@@ -14,15 +16,25 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
   });
 
   ipcMain.on('add-alarm', async (event, arg) => {
-    const alarms = (await settings.get('alarms')) || [];
+    const alarms = (await settings.get('alarms')) as any[] || [];
     alarms.push({ id: Date.now(), time: arg.time, label: arg.label });
     await settings.set('alarms', alarms);
     event.reply('add-alarm', alarms);
   });
 
   ipcMain.on('update-alarm', async (event, arg) => {
-    const alarms = (await settings.get('alarms')) || [];
-    const index = alarms.findIndex((alarm: any) => alarm.id === arg.id);
+    const alarms: { id: number, time: string, label: string }[] = (await settings.get('alarms')) as any[] || [];
+    let index = -1;
+    if (Array.isArray(alarms)) {
+      index = alarms.findIndex((alarm: any) => alarm.id === arg.id);
+      if (index !== -1) {
+        alarms[index] = { id: arg.id, time: arg.time, label: arg.label };
+        await settings.set('alarms', alarms);
+      }
+      event.reply('update-alarm', alarms);
+    } else {
+      event.reply('update-alarm', []);
+    }
     if (index !== -1) {
       alarms[index] = { id: arg.id, time: arg.time, label: arg.label };
       await settings.set('alarms', alarms);
@@ -31,8 +43,12 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
   });
 
   ipcMain.on('delete-alarm', async (event, arg) => {
-    let alarms = (await settings.get('alarms')) || [];
-    alarms = alarms.filter((alarm: any) => alarm.id !== arg.id);
+    let alarms = (await settings.get('alarms')) as any[] || [];
+    if (Array.isArray(alarms)) {
+      alarms = alarms.filter((alarm: any) => alarm.id !== arg.id);
+    } else {
+      alarms = [];
+    }
     await settings.set('alarms', alarms);
     event.reply('delete-alarm', alarms);
   });

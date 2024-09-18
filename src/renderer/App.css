@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'CityLight Dots';
-  src: url('./fonts/dotty.ttf') format('truetype');
+  font-family: 'Winclock Sans';
+  src: url('./fonts/winclock-sans.ttf') format('truetype');
 }
 
 body {
@@ -38,8 +38,8 @@ body {
 }
 
 .clock {
-  font-family: 'CityLight Dots', sans-serif;
-  font-size: 195px;
+  font-family: 'Winclock Sans', sans-serif;
+  font-size: 100px;
 }
 
 .alarms {
