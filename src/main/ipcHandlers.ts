@@ -4,14 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import Electron, { ipcMain } from 'electron';
-import {
-  addAlarm,
-  updateAlarm,
-  deleteAlarm,
-  getAlarms,
-  getCurrentTab,
-  updateCurrentTab,
-} from './database';
+import settings from 'electron-settings';
 
 export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
   ipcMain.on('ipc-example', async (event, arg) => {
@@ -21,30 +14,42 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
   });
 
   ipcMain.on('add-alarm', async (event, arg) => {
-    addAlarm(arg.time, arg.label);
-    event.reply('add-alarm', getAlarms());
+    const alarms = (await settings.get('alarms')) || [];
+    alarms.push({ id: Date.now(), time: arg.time, label: arg.label });
+    await settings.set('alarms', alarms);
+    event.reply('add-alarm', alarms);
   });
 
   ipcMain.on('update-alarm', async (event, arg) => {
-    updateAlarm(arg.id, arg.time, arg.label);
-    event.reply('update-alarm', getAlarms());
+    const alarms = (await settings.get('alarms')) || [];
+    const index = alarms.findIndex((alarm: any) => alarm.id === arg.id);
+    if (index !== -1) {
+      alarms[index] = { id: arg.id, time: arg.time, label: arg.label };
+      await settings.set('alarms', alarms);
+    }
+    event.reply('update-alarm', alarms);
   });
 
   ipcMain.on('delete-alarm', async (event, arg) => {
-    deleteAlarm(arg.id);
-    event.reply('delete-alarm', getAlarms());
+    let alarms = (await settings.get('alarms')) || [];
+    alarms = alarms.filter((alarm: any) => alarm.id !== arg.id);
+    await settings.set('alarms', alarms);
+    event.reply('delete-alarm', alarms);
   });
 
   ipcMain.on('alarms', async (event) => {
-    event.reply('alarms', getAlarms());
+    const alarms = (await settings.get('alarms')) || [];
+    event.reply('alarms', alarms);
   });
 
   ipcMain.on('current-tab', async (event) => {
-    event.reply('current-tab', getCurrentTab());
+    const currentTab = (await settings.get('currentTab')) || '';
+    event.reply('current-tab', currentTab);
   });
 
   ipcMain.on('update-current-tab', async (event, arg) => {
-    updateCurrentTab(arg);
-    event.reply('update-current-tab', getCurrentTab());
+    await settings.set('currentTab', arg);
+    const currentTab = (await settings.get('currentTab')) || '';
+    event.reply('update-current-tab', currentTab);
   });
 };
