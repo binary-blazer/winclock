@@ -1,7 +1,7 @@
 {
   "name": "winclock",
   "description": "advanced windows clock application",
-  "version": "2.0.0-b.1",
+  "version": "2.0.0-b.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/binary-blazer/winclock.git"
