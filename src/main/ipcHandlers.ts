@@ -25,9 +25,12 @@ const sendNotification = (title: string, body: string) => {
   const notification = new Notification({
     title,
     body,
-    actions: [{ type: 'button', text: 'Stop' }, { type: 'button', text: 'Snooze' }],
-    closeButtonText: 'Close'
-  })
+    actions: [
+      { type: 'button', text: 'Stop' },
+      { type: 'button', text: 'Snooze' },
+    ],
+    closeButtonText: 'Close',
+  });
 
   notification.on('action', (event, index) => {
     if (index === 0) {
@@ -52,19 +55,37 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
   });
 
   ipcMain.on('add-alarm', async (event, arg) => {
-    const alarms = (await settings.get('alarms')) as any[] || [];
-    alarms.push({ id: Date.now(), time: arg.time, label: arg.label, active: arg.active, repeat: arg.repeat });
+    const alarms = ((await settings.get('alarms')) as any[]) || [];
+    alarms.push({
+      id: Date.now(),
+      time: arg.time,
+      label: arg.label,
+      active: arg.active,
+      repeat: arg.repeat,
+    });
     await settings.set('alarms', alarms);
     event.reply('add-alarm', alarms);
   });
 
   ipcMain.on('update-alarm', async (event, arg) => {
-    const alarms: { id: number, time: string, label: string, active: boolean, repeat: string[] }[] = (await settings.get('alarms')) as any[] || [];
+    const alarms: {
+      id: number;
+      time: string;
+      label: string;
+      active: boolean;
+      repeat: string[];
+    }[] = ((await settings.get('alarms')) as any[]) || [];
     let index = -1;
     if (Array.isArray(alarms)) {
       index = alarms.findIndex((alarm: any) => alarm.id === arg.id);
       if (index !== -1) {
-        alarms[index] = { id: arg.id, time: arg.time, label: arg.label, active: arg.active, repeat: arg.repeat };
+        alarms[index] = {
+          id: arg.id,
+          time: arg.time,
+          label: arg.label,
+          active: arg.active,
+          repeat: arg.repeat,
+        };
         await settings.set('alarms', alarms);
       }
       event.reply('update-alarm', alarms);
@@ -72,14 +93,20 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
       event.reply('update-alarm', []);
     }
     if (index !== -1) {
-      alarms[index] = { id: arg.id, time: arg.time, label: arg.label, active: arg.active, repeat: arg.repeat };
+      alarms[index] = {
+        id: arg.id,
+        time: arg.time,
+        label: arg.label,
+        active: arg.active,
+        repeat: arg.repeat,
+      };
       await settings.set('alarms', alarms);
     }
     event.reply('update-alarm', alarms);
   });
 
   ipcMain.on('delete-alarm', async (event, arg) => {
-    let alarms = (await settings.get('alarms')) as any[] || [];
+    let alarms = ((await settings.get('alarms')) as any[]) || [];
     if (Array.isArray(alarms)) {
       alarms = alarms.filter((alarm: any) => alarm.id !== arg.id);
     } else {

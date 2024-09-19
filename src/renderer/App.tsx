@@ -31,14 +31,21 @@ function Clock() {
 function Alarms() {
   const [alarms, setAlarms] = useState<
     {
-      [x: string]: ReactNode; id: number; time: string; label: string, active: boolean, repeat: string[];
-}[]
+      [x: string]: ReactNode;
+      id: number;
+      time: string;
+      label: string;
+      active: boolean;
+      repeat: string[];
+    }[]
   >([]);
-  const [newAlarmTitle, setNewAlarmTitle] = useState('Alarm (' + alarms.length + 1 + ')');
+  const [newAlarmTitle, setNewAlarmTitle] = useState(
+    'Alarm (' + alarms.length + 1 + ')',
+  );
   const [newAlarmActive, setNewAlarmActive] = useState(true);
   const [alarmHours, setAlarmHours] = useState(7);
   const [alarmMinutes, setAlarmMinutes] = useState(45);
-  const [alarmTimeActive, setAlarmTimeActive] = useState("hours"); // hours, minutes
+  const [alarmTimeActive, setAlarmTimeActive] = useState('hours'); // hours, minutes
   const [newAlarmRepeatCycle, setNewAlarmRepeatCycle] = useState<string[]>([]); // array of selected days
   const [newAlarmOpen, setNewAlarmOpen] = useState(false);
 
@@ -64,7 +71,15 @@ function Alarms() {
     if (newAlarmRepeatCycle.length === 7) {
       setNewAlarmRepeatCycle([]);
     } else {
-      setNewAlarmRepeatCycle(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]);
+      setNewAlarmRepeatCycle([
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+      ]);
     }
   };
 
@@ -76,10 +91,24 @@ function Alarms() {
     const now = new Date();
 
     // Create a new date object for the next alarm time
-    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+    const next = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      hours,
+      minutes,
+    );
 
     // Array of days of the week
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const daysOfWeek = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
 
     // If the next alarm time is in the past, set it to the next day
     if (next < now) {
@@ -92,7 +121,9 @@ function Alarms() {
     }
 
     // Calculate the time difference in minutes
-    const totalMinutesUntilNext = Math.ceil((next.getTime() - now.getTime()) / 1000 / 60);
+    const totalMinutesUntilNext = Math.ceil(
+      (next.getTime() - now.getTime()) / 1000 / 60,
+    );
 
     // Convert total minutes into hours and remaining minutes
     const hoursUntilNext = Math.floor(totalMinutesUntilNext / 60);
@@ -113,37 +144,61 @@ function Alarms() {
           <h1 className="text-xl font-bold">New Alarm</h1>
           <div className="flex flex-col gap-2 items-center justify-start mt-2 w-full">
             <div className="flex flex-row gap-2 items-center justify-between w-full">
-              <button className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`} onClick={() => {
-                setAlarmHours((alarmHours + 1) % 24);
-              }}>
+              <button
+                className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => {
+                  setAlarmHours((alarmHours + 1) % 24);
+                }}
+              >
                 <i className="fas fa-chevron-up" />
               </button>
-              <button className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`} onClick={() => {
-                setAlarmMinutes((alarmMinutes + 1) % 60);
-              }}>
+              <button
+                className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => {
+                  setAlarmMinutes((alarmMinutes + 1) % 60);
+                }}
+              >
                 <i className="fas fa-chevron-up" />
               </button>
             </div>
             <div className="flex flex-row gap-2 items-center justify-center w-full p-1 bg-zinc-800/40 rounded-lg border border-zinc-800/60 hover:border-zinc-800/40 transition-colors duration-200 ease-in-out">
-              <button className={`h-full w-auto px-2 items-center justify-center hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out rounded-lg ${alarmTimeActive === "hours" ? "bg-zinc-800/60" : ""}`}
-              onClick={() => setAlarmTimeActive("hours")}>
-                <h1 className={`clock2 text-4xl ${alarmTimeActive === "hours" ? "text-zinc-50" : "text-zinc-300"}`}>{alarmHours}</h1>
+              <button
+                className={`h-full w-auto px-2 items-center justify-center hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out rounded-lg ${alarmTimeActive === 'hours' ? 'bg-zinc-800/60' : ''}`}
+                onClick={() => setAlarmTimeActive('hours')}
+              >
+                <h1
+                  className={`clock2 text-4xl ${alarmTimeActive === 'hours' ? 'text-zinc-50' : 'text-zinc-300'}`}
+                >
+                  {alarmHours}
+                </h1>
               </button>
               <h1 className="text-xl">:</h1>
-              <button className={`h-full w-auto px-2 items-center justify-center hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out rounded-lg ${alarmTimeActive === "minutes" ? "bg-zinc-800/60" : ""}`}
-              onClick={() => setAlarmTimeActive("minutes")}>
-                <h1 className={`clock2 text-4xl ${alarmTimeActive === "minutes" ? "text-zinc-50" : "text-zinc-300"}`}>{alarmMinutes}</h1>
+              <button
+                className={`h-full w-auto px-2 items-center justify-center hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out rounded-lg ${alarmTimeActive === 'minutes' ? 'bg-zinc-800/60' : ''}`}
+                onClick={() => setAlarmTimeActive('minutes')}
+              >
+                <h1
+                  className={`clock2 text-4xl ${alarmTimeActive === 'minutes' ? 'text-zinc-50' : 'text-zinc-300'}`}
+                >
+                  {alarmMinutes}
+                </h1>
               </button>
             </div>
             <div className="flex flex-row gap-2 items-center justify-between w-full">
-              <button className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`} onClick={() => {
-                setAlarmHours((alarmHours - 1 + 24) % 24);
-              }}>
+              <button
+                className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => {
+                  setAlarmHours((alarmHours - 1 + 24) % 24);
+                }}
+              >
                 <i className="fas fa-chevron-down" />
               </button>
-              <button className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`} onClick={() => {
-                setAlarmMinutes((alarmMinutes - 1 + 60) % 60);
-              }}>
+              <button
+                className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => {
+                  setAlarmMinutes((alarmMinutes - 1 + 60) % 60);
+                }}
+              >
                 <i className="fas fa-chevron-down" />
               </button>
             </div>
@@ -175,13 +230,22 @@ function Alarms() {
             </Switch>
           </div>
           <div className="flex flex-row items-center justify-start mt-4 gap-2">
-            {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => (
+            {[
+              'monday',
+              'tuesday',
+              'wednesday',
+              'thursday',
+              'friday',
+              'saturday',
+              'sunday',
+            ].map((day) => (
               <button
                 key={day}
-                className={`py-2 px-1 w-full rounded-full hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out ${newAlarmRepeatCycle.includes(day) ? "bg-zinc-800/80" : ""} border border-zinc-800/60`}
+                className={`py-2 px-1 w-full rounded-full hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out ${newAlarmRepeatCycle.includes(day) ? 'bg-zinc-800/80' : ''} border border-zinc-800/60`}
                 onClick={() => toggleDay(day)}
               >
-                {day.slice(0, 2).charAt(0).toUpperCase() + day.slice(0, 2).slice(1)}
+                {day.slice(0, 2).charAt(0).toUpperCase() +
+                  day.slice(0, 2).slice(1)}
               </button>
             ))}
           </div>
@@ -225,92 +289,111 @@ function Alarms() {
         </div>
       </div>
 
-      {!newAlarmOpen && (<>
-      <div className="flex flex-row items-center justify-start gap-2">
-      <h1 className="text-2xl font-bold">Alarms</h1>
-      <button
-        className="py-2 px-4 rounded-lg bg-zinc-800/40 text-zinc-50 hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out"
-        onClick={() => setNewAlarmOpen(true)}
-      >
-        <i className="fas fa-plus" />
-      </button>
-      </div>
+      {!newAlarmOpen && (
+        <>
+          <div className="flex flex-row items-center justify-start gap-2">
+            <h1 className="text-2xl font-bold">Alarms</h1>
+            <button
+              className="py-2 px-4 rounded-lg bg-zinc-800/40 text-zinc-50 hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out"
+              onClick={() => setNewAlarmOpen(true)}
+            >
+              <i className="fas fa-plus" />
+            </button>
+          </div>
 
-      <div className="border-t border-zinc-800/60 mt-6 w-full" />
-      <div className="grid grid-cols-2 gap-2 mt-6 w-full">
-        {alarms.length > 0 ?
-        alarms.map((alarm) => (
-          <div
-            key={alarm.id}
-            className="relative alarm p-4 bg-zinc-800/20 rounded-lg w-full gap-6 flex flex-row items-center justify-between hover:-translate-y-1 transition-transform duration-200 ease-in-out hover:shadow-lg"
-          >
-            <div className="flex flex-col items-start justify-center">
-              <h1 className="clock2 text-5xl">{alarm.time}</h1>
-              <p className="text-sm">
-                <i className="fal fa-clock mr-2" />
-                {getNextRingTime(alarm.time, alarm.repeat)}
-              </p>
-              <p className="text-sm">
-                <i className="fal fa-bell mr-2" />
-                {alarm.label}
-              </p>
-              <div className="flex flex-row items-center gap-2 mt-6">
-                <i className="fal fa-repeat mr-2" />
-                {alarm.repeat.map((day) => (
-                  <span key={day} className="text-xs px-2 py-1 bg-zinc-800/40 rounded-lg">
-                    {day.slice(0, 2).charAt(0).toUpperCase() + day.slice(0, 2).slice(1)}
-                  </span>
-                ))}
+          <div className="border-t border-zinc-800/60 mt-6 w-full" />
+          <div className="grid grid-cols-2 gap-2 mt-6 w-full">
+            {alarms.length > 0 ? (
+              alarms.map((alarm) => (
+                <div
+                  key={alarm.id}
+                  className="relative alarm p-4 bg-zinc-800/20 rounded-lg w-full gap-6 flex flex-row items-center justify-between hover:-translate-y-1 transition-transform duration-200 ease-in-out hover:shadow-lg"
+                >
+                  <div className="flex flex-col items-start justify-center">
+                    <h1 className="clock2 text-5xl">{alarm.time}</h1>
+                    <p className="text-sm">
+                      <i className="fal fa-clock mr-2" />
+                      {getNextRingTime(alarm.time, alarm.repeat)}
+                    </p>
+                    <p className="text-sm">
+                      <i className="fal fa-bell mr-2" />
+                      {alarm.label}
+                    </p>
+                    <div className="flex flex-row items-center gap-2 mt-6">
+                      <i className="fal fa-repeat mr-2" />
+                      {alarm.repeat.map((day) => (
+                        <span
+                          key={day}
+                          className="text-xs px-2 py-1 bg-zinc-800/40 rounded-lg"
+                        >
+                          {day.slice(0, 2).charAt(0).toUpperCase() +
+                            day.slice(0, 2).slice(1)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="absolute top-3 right-3 flex flex-row items-center justify-center gap-2">
+                    <Switch
+                      checked={alarm.active}
+                      onChange={(checked) => {
+                        window.electron.ipcRenderer.once(
+                          'update-alarm',
+                          (arg: any) => {
+                            setAlarms(arg);
+                          },
+                        );
+
+                        window.electron.ipcRenderer.sendMessage(
+                          'update-alarm',
+                          {
+                            id: alarm.id,
+                            time: alarm.time,
+                            label: alarm.label,
+                            active: checked,
+                            repeat: alarm.repeat,
+                          },
+                        );
+                      }}
+                      className={`${
+                        alarm.active ? 'bg-blue-500' : 'bg-zinc-800/40'
+                      } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
+                    >
+                      <span className="sr-only">Enable notifications</span>
+                      <span
+                        className={`${
+                          alarm.active ? 'translate-x-6' : 'translate-x-1'
+                        } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
+                      />
+                    </Switch>
+                    <button
+                      className="py-2 px-4 rounded-lg bg-zinc-800/40 text-zinc-50 hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out"
+                      onClick={() => {
+                        window.electron.ipcRenderer.once(
+                          'delete-alarm',
+                          (arg: any) => {
+                            setAlarms(arg);
+                          },
+                        );
+
+                        window.electron.ipcRenderer.sendMessage(
+                          'delete-alarm',
+                          { id: alarm.id },
+                        );
+                      }}
+                    >
+                      <i className="fas fa-trash" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <h1 className="text-2xl font-bold">No alarms yet</h1>
               </div>
-            </div>
-            <div className="absolute top-3 right-3 flex flex-row items-center justify-center gap-2">
-              <Switch
-                checked={alarm.active}
-                onChange={(checked) => {
-                  window.electron.ipcRenderer.once('update-alarm', (arg: any) => {
-                    setAlarms(arg);
-                  });
-
-                  window.electron.ipcRenderer.sendMessage('update-alarm', {
-                    id: alarm.id,
-                    time: alarm.time,
-                    label: alarm.label,
-                    active: checked,
-                    repeat: alarm.repeat,
-                  });
-                }}
-                className={`${
-                  alarm.active ? 'bg-blue-500' : 'bg-zinc-800/40'
-                } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
-              >
-                <span className="sr-only">Enable notifications</span>
-                <span
-                  className={`${
-                    alarm.active ? 'translate-x-6' : 'translate-x-1'
-                  } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
-                />
-              </Switch>
-              <button
-                className="py-2 px-4 rounded-lg bg-zinc-800/40 text-zinc-50 hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out"
-                onClick={() => {
-                  window.electron.ipcRenderer.once('delete-alarm', (arg: any) => {
-                    setAlarms(arg);
-                  });
-
-                  window.electron.ipcRenderer.sendMessage('delete-alarm', { id: alarm.id });
-                }}
-              >
-                <i className="fas fa-trash" />
-              </button>
-            </div>
+            )}
           </div>
-        )) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <h1 className="text-2xl font-bold">No alarms yet</h1>
-          </div>
-        )}
-      </div>
-      </>)}
+        </>
+      )}
     </div>
   );
 }
