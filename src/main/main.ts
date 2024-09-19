@@ -1,3 +1,4 @@
+/* eslint-disable promise/catch-or-return */
 /* eslint-disable no-console */
 /* eslint-disable promise/always-return */
 /* eslint-disable global-require */
@@ -6,6 +7,7 @@
 
 import { app, BrowserWindow, ipcMain, Tray } from 'electron';
 import AutoLaunch from 'electron-auto-launch';
+import settings from 'electron-settings';
 import { createTray } from './tray';
 import { setupIpcHandlers } from './ipcHandlers';
 import { createWindow } from './window';
@@ -15,6 +17,11 @@ let tray: Tray | null = null;
 
 const autoLauncher = new AutoLaunch({
   name: 'Winclock',
+});
+
+autoLauncher.isEnabled().then((isEnabled) => {
+  if (isEnabled) return;
+  autoLauncher.enable();
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -35,12 +42,35 @@ app.on('window-all-closed', () => {
   }
 });
 
+const checkAlarms = async () => {
+  const alarms = ((await settings.get('alarms')) as any[]) || [];
+  const now = new Date();
+  alarms.forEach((alarm) => {
+    if (!alarm.active) return;
+    const [hours, minutes] = alarm.time
+      .split(':')
+      .map((t: string) => parseInt(t, 10));
+    const alarmTime = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      hours,
+      minutes,
+    );
+    if (alarmTime <= now && alarm.active) {
+      ipcMain.emit('start-alarm', null, { id: alarm.id });
+    }
+    ipcMain.emit('start-alarm', null, { id: alarm.id });
+  });
+};
+
 app
   .whenReady()
   .then(() => {
     createTray(tray, autoLauncher);
     createWindow(mainWindow);
     setupIpcHandlers(ipcMain);
+    setInterval(checkAlarms, 60000);
     app.on('activate', () => {
       if (mainWindow === null) createWindow(mainWindow);
     });

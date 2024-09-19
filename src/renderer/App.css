@@ -42,6 +42,10 @@ body {
   font-size: 100px;
 }
 
+.clock2 {
+  font-family: 'Winclock Sans', sans-serif;
+}
+
 .alarms {
   text-align: center;
 }
