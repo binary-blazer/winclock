@@ -389,6 +389,68 @@ function Alarms() {
   );
 }
 
+function Settings() {
+  const [militaryTime, setMilitaryTime] = useState(false);
+  const [backgroundRunning, setBackgroundRunning] = useState(true);
+
+  useEffect(() => {
+    window.electron.ipcRenderer.once('load-settings', (arg: any) => {
+      setMilitaryTime(arg.militaryTime);
+      setBackgroundRunning(arg.backgroundRunning);
+    });
+
+    window.electron.ipcRenderer.sendMessage('load-settings');
+  }, []);
+
+  const handleSaveSettings = () => {
+    window.electron.ipcRenderer.sendMessage('save-settings', {
+      militaryTime,
+      backgroundRunning,
+    });
+  };
+
+  return (
+    <div className="settings">
+      <h1>Settings</h1>
+      <div>
+        <label>Military Time</label>
+        <Switch
+          checked={militaryTime}
+          onChange={setMilitaryTime}
+          className={`${
+            militaryTime ? 'bg-blue-500' : 'bg-zinc-800/40'
+          } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
+        >
+          <span className="sr-only">Enable Military Time</span>
+          <span
+            className={`${
+              militaryTime ? 'translate-x-6' : 'translate-x-1'
+            } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
+          />
+        </Switch>
+      </div>
+      <div>
+        <label>Run in Background</label>
+        <Switch
+          checked={backgroundRunning}
+          onChange={setBackgroundRunning}
+          className={`${
+            backgroundRunning ? 'bg-blue-500' : 'bg-zinc-800/40'
+          } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
+        >
+          <span className="sr-only">Enable Background Running</span>
+          <span
+            className={`${
+              backgroundRunning ? 'translate-x-6' : 'translate-x-1'
+            } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
+          />
+        </Switch>
+      </div>
+      <button onClick={handleSaveSettings}>Save Settings</button>
+    </div>
+  );
+}
+
 function Hello() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -449,6 +511,17 @@ function Hello() {
                 <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
               )}
             </div>
+            <div className="relative flex flex-row w-full justify-center">
+              <button
+                className={`relative py-2 px-4 rounded-lg ${activeTab === 'settings' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                onClick={() => handleTab('settings')}
+              >
+                <i className="fas fa-cog" />
+              </button>
+              {activeTab === 'settings' && (
+                <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
+              )}
+            </div>
           </div>
           <div className="flex flex-col items-center justify-center w-full h-full">
             {activeTab === 'clock' && (
@@ -473,6 +546,18 @@ function Hello() {
                 transition={{ duration: 0.5 }}
               >
                 <Alarms />
+              </motion.div>
+            )}
+            {activeTab === 'settings' && (
+              <motion.div
+                key="settings"
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={variants}
+                transition={{ duration: 0.5 }}
+              >
+                <Settings />
               </motion.div>
             )}
           </div>

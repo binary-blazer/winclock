@@ -163,4 +163,16 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
     // Implement snooze logic here (e.g., restart alarm after 5 minutes)
     event.reply('snooze-alarm', 'Alarm snoozed');
   });
+
+  ipcMain.on('save-settings', async (event, arg) => {
+    await settings.set('militaryTime', arg.militaryTime);
+    await settings.set('backgroundRunning', arg.backgroundRunning);
+    event.reply('save-settings', 'Settings saved');
+  });
+
+  ipcMain.on('load-settings', async (event) => {
+    const militaryTime = (await settings.get('militaryTime')) || false;
+    const backgroundRunning = (await settings.get('backgroundRunning')) || true;
+    event.reply('load-settings', { militaryTime, backgroundRunning });
+  });
 };
