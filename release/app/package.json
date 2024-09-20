@@ -1,5 +1,5 @@
 {
-  "name": "winclock",
+  "name": "buzzrclock",
   "version": "2.0.0-b.2",
   "license": "GPL-3.0-only",
   "main": "./dist/main/main.js",

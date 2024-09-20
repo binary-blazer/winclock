@@ -1,6 +1,6 @@
 {
-  "name": "winclock",
-  "description": "advanced windows clock application",
+  "name": "buzzrclock",
+  "description": "advanced clock application",
   "version": "2.0.0-b.2",
   "repository": {
     "type": "git",
@@ -174,8 +174,8 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "Winclock",
-    "appId": "org.binaryblazer.winclock",
+    "productName": "Buzzr Clock",
+    "appId": "org.buzzr.clock",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,

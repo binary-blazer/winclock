@@ -16,7 +16,7 @@ let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 
 const autoLauncher = new AutoLaunch({
-  name: 'Winclock',
+  name: 'Buzzr Clock',
 });
 
 autoLauncher.isEnabled().then((isEnabled) => {

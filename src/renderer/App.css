@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'Winclock Sans';
-  src: url('./fonts/winclock-sans.ttf') format('truetype');
+  font-family: 'Buzzr Clock Sans';
+  src: url('./fonts/buzzrclock-sans.ttf') format('truetype');
 }
 
 body {
@@ -38,12 +38,12 @@ body {
 }
 
 .clock {
-  font-family: 'Winclock Sans', sans-serif;
+  font-family: 'Buzzr Clock Sans', sans-serif;
   font-size: 100px;
 }
 
 .clock2 {
-  font-family: 'Winclock Sans', sans-serif;
+  font-family: 'Buzzr Clock Sans', sans-serif;
 }
 
 .alarms {

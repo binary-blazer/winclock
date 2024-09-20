@@ -84,13 +84,10 @@ function Alarms() {
   };
 
   const getNextRingTime = (time: string, repeat: string[]): string => {
-    // Parse the input time string into hours and minutes
     const [hours, minutes] = time.split(':').map((t) => parseInt(t, 10));
 
-    // Get the current date and time
     const now = new Date();
 
-    // Create a new date object for the next alarm time
     const next = new Date(
       now.getFullYear(),
       now.getMonth(),
@@ -99,7 +96,6 @@ function Alarms() {
       minutes,
     );
 
-    // Array of days of the week
     const daysOfWeek = [
       'Sunday',
       'Monday',
@@ -110,26 +106,21 @@ function Alarms() {
       'Saturday',
     ];
 
-    // If the next alarm time is in the past, set it to the next day
     if (next < now) {
       next.setDate(now.getDate() + 1);
     }
 
-    // Adjust the next alarm time to match one of the repeat days
     while (!repeat.includes(daysOfWeek[next.getDay()].toLowerCase())) {
       next.setDate(next.getDate() + 1);
     }
 
-    // Calculate the time difference in minutes
     const totalMinutesUntilNext = Math.ceil(
       (next.getTime() - now.getTime()) / 1000 / 60,
     );
 
-    // Convert total minutes into hours and remaining minutes
     const hoursUntilNext = Math.floor(totalMinutesUntilNext / 60);
     const minutesUntilNext = totalMinutesUntilNext % 60;
 
-    // Return the formatted string with the next alarm time and the time difference
     return `${daysOfWeek[next.getDay()]} at ${next.toLocaleTimeString()} (in ${hoursUntilNext} hours and ${minutesUntilNext} minutes)`;
   };
 
