@@ -64,6 +64,19 @@ const checkAlarms = async () => {
   });
 };
 
+const applySettings = async () => {
+  const militaryTime = (await settings.get('militaryTime')) || false;
+  const backgroundRunning = (await settings.get('backgroundRunning')) || true;
+
+  if (backgroundRunning) {
+    autoLauncher.enable();
+  } else {
+    autoLauncher.disable();
+  }
+
+  // Apply military time setting to the app (if needed)
+};
+
 app
   .whenReady()
   .then(() => {
@@ -71,6 +84,7 @@ app
     createWindow(mainWindow);
     setupIpcHandlers(ipcMain);
     setInterval(checkAlarms, 60000);
+    applySettings();
     app.on('activate', () => {
       if (mainWindow === null) createWindow(mainWindow);
     });
