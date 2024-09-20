@@ -14,15 +14,23 @@ import { createWindow } from './window';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
+const runInBackground = settings.get('backgroundRunning');
 
 const autoLauncher = new AutoLaunch({
   name: 'Buzzr Clock',
 });
 
-autoLauncher.isEnabled().then((isEnabled) => {
-  if (isEnabled) return;
-  autoLauncher.enable();
-});
+async function autoBootFunction(_autoLauncher: AutoLaunch) {
+  const autoBoot = await settings.get('autoBoot');
+
+  if (autoBoot) {
+    _autoLauncher.enable();
+  } else {
+    _autoLauncher.disable();
+  }
+}
+
+autoBootFunction(autoLauncher);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -36,9 +44,13 @@ if (isDebug) {
   require('electron-debug')();
 }
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    if (await runInBackground) {
+      app.hide();
+    } else {
+      app.quit();
+    }
   }
 });
 
@@ -60,7 +72,6 @@ const checkAlarms = async () => {
     if (alarmTime <= now && alarm.active) {
       ipcMain.emit('start-alarm', null, { id: alarm.id });
     }
-    ipcMain.emit('start-alarm', null, { id: alarm.id });
   });
 };
 
@@ -74,16 +85,13 @@ const applySettings = async () => {
     autoLauncher.disable();
   }
 
-  // Apply military time setting to the app (if needed)
-  if (mainWindow) {
-    mainWindow.webContents.send('apply-settings', { militaryTime });
-  }
+  mainWindow.webContents.send('apply-settings', { militaryTime });
 };
 
 app
   .whenReady()
   .then(() => {
-    createTray(tray, autoLauncher);
+    createTray(tray);
     createWindow(mainWindow);
     setupIpcHandlers(ipcMain);
     setInterval(checkAlarms, 60000);

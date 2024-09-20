@@ -62,6 +62,7 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
       label: arg.label,
       active: arg.active,
       repeat: arg.repeat,
+      amPm: arg.amPm,
     });
     await settings.set('alarms', alarms);
     event.reply('add-alarm', alarms);
@@ -74,6 +75,7 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
       label: string;
       active: boolean;
       repeat: string[];
+      amPm: boolean;
     }[] = ((await settings.get('alarms')) as any[]) || [];
     let index = -1;
     if (Array.isArray(alarms)) {
@@ -85,6 +87,7 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
           label: arg.label,
           active: arg.active,
           repeat: arg.repeat,
+          amPm: arg.amPm
         };
         await settings.set('alarms', alarms);
       }
@@ -99,6 +102,7 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
         label: arg.label,
         active: arg.active,
         repeat: arg.repeat,
+        amPm: arg.amPm
       };
       await settings.set('alarms', alarms);
     }
@@ -160,19 +164,28 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
       alarmInterval = null;
     }
     setVolume(65535);
-    // Implement snooze logic here (e.g., restart alarm after 5 minutes)
+
+    const snoozeTime: number = (await settings.get('snoozeTime')) as number || 5;
+
+    setTimeout(() => {
+      ipcMain.emit('start-alarm');
+    }, snoozeTime * 60 * 1000);
+
     event.reply('snooze-alarm', 'Alarm snoozed');
   });
 
   ipcMain.on('save-settings', async (event, arg) => {
     await settings.set('militaryTime', arg.militaryTime);
     await settings.set('backgroundRunning', arg.backgroundRunning);
+    await settings.set('autoBoot', arg.autoBoot);
     event.reply('save-settings', 'Settings saved');
   });
 
   ipcMain.on('load-settings', async (event) => {
     const militaryTime = (await settings.get('militaryTime')) || false;
     const backgroundRunning = (await settings.get('backgroundRunning')) || true;
-    event.reply('load-settings', { militaryTime, backgroundRunning });
+    const autoBoot = (await settings.get('autoBoot')) || false;
+
+    event.reply('load-settings', { militaryTime, backgroundRunning, autoBoot });
   });
 };

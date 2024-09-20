@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable react/jsx-curly-brace-presence */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-else-return */
@@ -14,6 +16,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 
 function Clock() {
+  const [loading, setLoading] = useState(true);
   const [time, setTime] = useState(new Date());
   const [militaryTime, setMilitaryTime] = useState(false);
 
@@ -27,16 +30,27 @@ function Clock() {
   useEffect(() => {
     window.electron.ipcRenderer.once('load-settings', (arg: any) => {
       setMilitaryTime(arg.militaryTime);
+      setLoading(false);
     });
 
     window.electron.ipcRenderer.sendMessage('load-settings');
   }, []);
 
   const formattedTime = militaryTime
-    ? `${time.toLocaleTimeString()}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`
-    : `${time.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`;
+    ? `${time.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`
+    : `${time.toLocaleTimeString()}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`;
 
-  return <div className="clock">{formattedTime}</div>;
+  return (
+    <div className="clock">
+      {loading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <i className="fas fa-spinner-third animate-spin text-4xl" />
+        </div>
+      ) : (
+        <h1>{formattedTime}</h1>
+      )}
+    </div>
+  );
 }
 
 function Alarms() {
@@ -48,11 +62,14 @@ function Alarms() {
       label: string;
       active: boolean;
       repeat: string[];
+      amPm: string;
     }[]
   >([]);
   const [newAlarmTitle, setNewAlarmTitle] = useState(
     'Alarm (' + alarms.length + 1 + ')',
   );
+  const [amPm, setAmPm] = useState(true);
+
   const [newAlarmActive, setNewAlarmActive] = useState(true);
   const [alarmHours, setAlarmHours] = useState(7);
   const [alarmMinutes, setAlarmMinutes] = useState(45);
@@ -60,12 +77,18 @@ function Alarms() {
   const [newAlarmRepeatCycle, setNewAlarmRepeatCycle] = useState<string[]>([]); // array of selected days
   const [newAlarmOpen, setNewAlarmOpen] = useState(false);
   const [militaryTime, setMilitaryTime] = useState(false);
+  const [amPmMode, setAmPmMode] = useState(true);
 
   useEffect(() => {
     window.electron.ipcRenderer.once('alarms', (arg: any) => {
       setAlarms(arg);
     });
 
+    window.electron.ipcRenderer.once('load-settings', (arg: any) => {
+      setAmPm(arg.militaryTime);
+    });
+
+    window.electron.ipcRenderer.sendMessage('load-settings');
     window.electron.ipcRenderer.sendMessage('alarms');
   }, []);
 
@@ -87,23 +110,7 @@ function Alarms() {
     });
   };
 
-  const toggleAllDays = () => {
-    if (newAlarmRepeatCycle.length === 7) {
-      setNewAlarmRepeatCycle([]);
-    } else {
-      setNewAlarmRepeatCycle([
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-        'sunday',
-      ]);
-    }
-  };
-
-  const getNextRingTime = (time: string, repeat: string[]): string => {
+  const getNextRingTime = (mt: number, time: string, repeat: string[]): string => {
     const [hours, minutes] = time.split(':').map((t) => parseInt(t, 10));
 
     const now = new Date();
@@ -126,7 +133,16 @@ function Alarms() {
       'Saturday',
     ];
 
-    if (next < now) {
+    if (mt === 0) {
+      const isPM = time.toLowerCase().includes('pm');
+      if (isPM && hours < 12) {
+        next.setHours(hours + 12);
+      } else if (!isPM && hours === 12) {
+        next.setHours(0);
+      }
+    }
+
+    if (next <= now) {
       next.setDate(now.getDate() + 1);
     }
 
@@ -141,7 +157,13 @@ function Alarms() {
     const hoursUntilNext = Math.floor(totalMinutesUntilNext / 60);
     const minutesUntilNext = totalMinutesUntilNext % 60;
 
-    return `${daysOfWeek[next.getDay()]} at ${next.toLocaleTimeString()} (in ${hoursUntilNext} hours and ${minutesUntilNext} minutes)`;
+    const timeString = next.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: mt === 0,
+    });
+
+    return `${daysOfWeek[next.getDay()]} at ${timeString} (in ${hoursUntilNext} hours and ${minutesUntilNext} minutes)`;
   };
 
   return (
@@ -152,13 +174,26 @@ function Alarms() {
         }`}
       >
         <div className="w-96 p-4 bg-neutral-800/60 rounded-lg backdrop-blur-md">
-          <h1 className="text-xl font-bold">New Alarm</h1>
+          <div className="flex flex-row items-center justify-between mb-6">
+            <h1 className="text-xl font-bold">New Alarm</h1>
+            {amPm && (
+          <div className="flex flex-row items-center justify-start mt-2 gap-2">
+            <button
+              className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+              onClick={() => setAmPmMode(!amPmMode)}
+            >
+              <i className={`fas fa-${amPmMode ? 'sun' : 'moon'}`} />
+              <span className="ml-2">{amPmMode ? 'AM' : 'PM'}</span>
+            </button>
+          </div>
+          )}
+          </div>
           <div className="flex flex-col gap-2 items-center justify-start mt-2 w-full">
             <div className="flex flex-row gap-2 items-center justify-between w-full">
               <button
                 className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
                 onClick={() => {
-                  setAlarmHours((alarmHours + 1) % 24);
+                  setAlarmHours((alarmHours + 1) % (amPm ? 12 : 24));
                 }}
               >
                 <i className="fas fa-chevron-up" />
@@ -199,7 +234,7 @@ function Alarms() {
               <button
                 className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
                 onClick={() => {
-                  setAlarmHours((alarmHours - 1 + 24) % 24);
+                  setAlarmHours((alarmHours - 1 + 24) % (amPm ? 12 : 24));
                 }}
               >
                 <i className="fas fa-chevron-down" />
@@ -270,10 +305,11 @@ function Alarms() {
                 });
 
                 window.electron.ipcRenderer.sendMessage('add-alarm', {
-                  time: `${String(alarmHours).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}`,
+                  time: militaryTime ? `${String(alarmHours % 12).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}` : `${String(alarmHours).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}`,
                   label: newAlarmTitle,
                   active: newAlarmActive,
                   repeat: newAlarmRepeatCycle,
+                  amPm: amPmMode ? 'AM' : 'PM',
                 });
 
                 setNewAlarmOpen(false);
@@ -318,13 +354,13 @@ function Alarms() {
               alarms.map((alarm) => (
                 <div
                   key={alarm.id}
-                  className="relative alarm p-4 bg-zinc-800/20 rounded-lg w-full gap-6 flex flex-row items-center justify-between hover:-translate-y-1 transition-transform duration-200 ease-in-out hover:shadow-lg"
+                  className="relative alarm p-4 bg-zinc-800/20 rounded-lg w-full gap-6 flex flex-row items-center justify-between transition-all duration-200 ease-in-out hover:shadow-lg"
                 >
                   <div className="flex flex-col items-start justify-center">
-                    <h1 className="clock2 text-5xl">{militaryTime ? alarm.time : new Date(`1970-01-01T${alarm.time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</h1>
+                    <h1 className="clock2 text-5xl">{militaryTime ? alarm.time + ' ' + alarm.amPm : alarm.time}</h1>
                     <p className="text-sm">
                       <i className="fal fa-clock mr-2" />
-                      {getNextRingTime(alarm.time, alarm.repeat)}
+                      {getNextRingTime(alarm.amPm === 'AM' ? 0 : 1, alarm.time, alarm.repeat)}
                     </p>
                     <p className="text-sm">
                       <i className="fal fa-bell mr-2" />
@@ -410,13 +446,17 @@ function Alarms() {
 }
 
 function Settings() {
+  const [loading, setLoading] = useState(true);
   const [militaryTime, setMilitaryTime] = useState(false);
   const [backgroundRunning, setBackgroundRunning] = useState(true);
+  const [autoBoot, setAutoBoot] = useState(false);
 
   useEffect(() => {
     window.electron.ipcRenderer.once('load-settings', (arg: any) => {
       setMilitaryTime(arg.militaryTime);
       setBackgroundRunning(arg.backgroundRunning);
+      setAutoBoot(arg.autoBoot);
+      setLoading(false);
     });
 
     window.electron.ipcRenderer.sendMessage('load-settings');
@@ -426,47 +466,83 @@ function Settings() {
     window.electron.ipcRenderer.sendMessage('save-settings', {
       militaryTime,
       backgroundRunning,
+      autoBoot,
     });
   };
 
   return (
     <div className="settings">
-      <h1>Settings</h1>
-      <div>
-        <label>Military Time</label>
-        <Switch
-          checked={militaryTime}
-          onChange={setMilitaryTime}
-          className={`${
-            militaryTime ? 'bg-blue-500' : 'bg-zinc-800/40'
-          } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
-        >
-          <span className="sr-only">Enable Military Time</span>
-          <span
-            className={`${
-              militaryTime ? 'translate-x-6' : 'translate-x-1'
-            } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
-          />
-        </Switch>
-      </div>
-      <div>
-        <label>Run in Background</label>
-        <Switch
-          checked={backgroundRunning}
-          onChange={setBackgroundRunning}
-          className={`${
-            backgroundRunning ? 'bg-blue-500' : 'bg-zinc-800/40'
-          } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
-        >
-          <span className="sr-only">Enable Background Running</span>
-          <span
-            className={`${
-              backgroundRunning ? 'translate-x-6' : 'translate-x-1'
-            } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
-          />
-        </Switch>
-      </div>
-      <button onClick={handleSaveSettings}>Save Settings</button>
+      <h1 className="text-2xl font-bold">Settings</h1>
+      <div className="border-t border-zinc-800/60 mt-6 w-full" />
+      {loading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <i className="fas fa-spinner-third animate-spin text-4xl" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 mt-6 w-full">
+          <div className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer" onClick={() => {
+            setMilitaryTime(!militaryTime);
+          }}>
+            <h1 className="text-lg">AM/PM mode</h1>
+            <Switch
+              checked={militaryTime}
+              className={`${
+                militaryTime ? 'bg-blue-500' : 'bg-zinc-800/40'
+              } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
+            >
+              <span className="sr-only">Enable notifications</span>
+              <span
+                className={`${
+                  militaryTime ? 'translate-x-6' : 'translate-x-1'
+                } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
+              />
+            </Switch>
+          </div>
+          <div className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer" onClick={() => {
+            setBackgroundRunning(!backgroundRunning);
+          }}>
+            <h1 className="text-lg">Background Running</h1>
+            <Switch
+              checked={backgroundRunning}
+              className={`${
+                backgroundRunning ? 'bg-blue-500' : 'bg-zinc-800/40'
+              } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
+            >
+              <span className="sr-only">Enable notifications</span>
+              <span
+                className={`${
+                  backgroundRunning ? 'translate-x-6' : 'translate-x-1'
+                } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
+              />
+            </Switch>
+          </div>
+          <div className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer" onClick={() => {
+            setAutoBoot(!autoBoot);
+          }}>
+            <h1 className="text-lg">Auto Boot</h1>
+            <Switch
+              checked={autoBoot}
+              className={`${
+                autoBoot ? 'bg-blue-500' : 'bg-zinc-800/40'
+              } relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out`}
+            >
+              <span className="sr-only">Enable notifications</span>
+              <span
+                className={`${
+                  autoBoot ? 'translate-x-6' : 'translate-x-1'
+                } inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out`}
+              />
+            </Switch>
+          </div>
+          <button
+            className="py-2 px-4 rounded-lg bg-zinc-800/40 text-zinc-50 hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out"
+            onClick={handleSaveSettings}
+          >
+            <i className="fal fa-save mr-2" />
+            Save
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -508,7 +584,8 @@ function Hello() {
         </div>
       ) : (
         <div className="flex flex-row items-start justify-center h-full w-full">
-          <div className="flex flex-col items-center justify-start w-20 px-2 py-12 gap-3 h-full bg-zinc-800/20">
+          <div className="flex flex-col items-center justify-between w-20 px-2 py-12 gap-3 h-full bg-zinc-800/20">
+            <div className="flex flex-col w-full justify-center">
             <div className="relative flex flex-row w-full justify-center">
               <button
                 className={`py-2 px-4 rounded-lg ${activeTab === 'clock' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
@@ -531,7 +608,9 @@ function Hello() {
                 <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
               )}
             </div>
-            <div className="relative flex flex-row w-full justify-center">
+            </div>
+            <div className="flex flex-col w-full justify-end items-end">
+            <div className="relative flex flex-row w-full justify-center items-end">
               <button
                 className={`relative py-2 px-4 rounded-lg ${activeTab === 'settings' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
                 onClick={() => handleTab('settings')}
@@ -541,6 +620,7 @@ function Hello() {
               {activeTab === 'settings' && (
                 <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
               )}
+            </div>
             </div>
           </div>
           <div className="flex flex-col items-center justify-center w-full h-full">

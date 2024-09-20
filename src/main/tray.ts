@@ -3,10 +3,8 @@
 
 import path from 'path';
 import { app, Tray, Menu, nativeImage } from 'electron';
-import AutoLaunch from 'electron-auto-launch';
-import settings from 'electron-settings';
 
-export const createTray = (tray: Tray | null, autoLauncher: AutoLaunch) => {
+export const createTray = (tray: Tray | null) => {
   const image = nativeImage.createFromPath(
     path.join(process.cwd(), 'assets', 'icon.png'),
   );
@@ -15,20 +13,6 @@ export const createTray = (tray: Tray | null, autoLauncher: AutoLaunch) => {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Toggle Auto Boot',
-      type: 'checkbox',
-      checked: Boolean(settings.getSync('autoBoot')) || false,
-      click: (menuItem) => {
-        const autoBoot = menuItem.checked;
-        settings.setSync('autoBoot', autoBoot);
-        if (autoBoot) {
-          autoLauncher.enable();
-        } else {
-          autoLauncher.disable();
-        }
-      },
-    },
-    {
       label: 'Quit',
       click: () => {
         app.quit();
@@ -36,7 +20,7 @@ export const createTray = (tray: Tray | null, autoLauncher: AutoLaunch) => {
     },
   ]);
 
-  tray.setToolTip('WinClock');
+  tray.setToolTip('Buzzr Clock');
   tray.setContextMenu(contextMenu);
 
   return tray;
