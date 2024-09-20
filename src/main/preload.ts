@@ -10,7 +10,9 @@ export type Channels =
   | 'delete-alarm'
   | 'alarms'
   | 'current-tab'
-  | 'update-current-tab';
+  | 'update-current-tab'
+  | 'save-settings'
+  | 'load-settings';
 
 const electronHandler = {
   ipcRenderer: {
