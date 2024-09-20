@@ -1,19 +1,19 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "scripts:dimensions",
-			"problemMatcher": [],
-			"label": "Update assets/icons and assets icons",
-			"detail": "ts-node ./scripts/createIconDimensions.ts"
-		},
-		{
-			"type": "npm",
-			"script": "scripts:updateVersion",
-			"problemMatcher": [],
-			"label": "Update Version",
-			"detail": "ts-node ./scripts/updateVersion.ts"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "scripts:dimensions",
+      "problemMatcher": [],
+      "label": "Update assets/icons and assets icons",
+      "detail": "ts-node ./scripts/createIconDimensions.ts"
+    },
+    {
+      "type": "npm",
+      "script": "scripts:updateVersion",
+      "problemMatcher": [],
+      "label": "Update Version",
+      "detail": "ts-node ./scripts/updateVersion.ts"
+    }
+  ]
 }

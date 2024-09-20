@@ -87,7 +87,7 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
           label: arg.label,
           active: arg.active,
           repeat: arg.repeat,
-          amPm: arg.amPm
+          amPm: arg.amPm,
         };
         await settings.set('alarms', alarms);
       }
@@ -102,7 +102,7 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
         label: arg.label,
         active: arg.active,
         repeat: arg.repeat,
-        amPm: arg.amPm
+        amPm: arg.amPm,
       };
       await settings.set('alarms', alarms);
     }
@@ -165,11 +165,15 @@ export const setupIpcHandlers = (ipcMain: Electron.IpcMain) => {
     }
     setVolume(65535);
 
-    const snoozeTime: number = (await settings.get('snoozeTime')) as number || 5;
+    const snoozeTime: number =
+      ((await settings.get('snoozeTime')) as number) || 5;
 
-    setTimeout(() => {
-      ipcMain.emit('start-alarm');
-    }, snoozeTime * 60 * 1000);
+    setTimeout(
+      () => {
+        ipcMain.emit('start-alarm');
+      },
+      snoozeTime * 60 * 1000,
+    );
 
     event.reply('snooze-alarm', 'Alarm snoozed');
   });

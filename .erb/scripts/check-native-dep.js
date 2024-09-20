@@ -1,7 +1,12 @@
 import fs from 'fs';
-import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { dependencies } from '../../package.json';
+import {
+  whiteBrightBgYellowBold,
+  whiteBrightBgGreenBold,
+  whiteBrightBgRedBold,
+  bold,
+} from './colorUtils';
 
 if (dependencies) {
   const dependenciesKeys = Object.keys(dependencies);
@@ -25,24 +30,20 @@ if (dependencies) {
     if (filteredRootDependencies.length > 0) {
       const plural = filteredRootDependencies.length > 1;
       console.log(`
- ${chalk.whiteBright.bgYellow.bold(
-   'Webpack does not work with native dependencies.',
- )}
-${chalk.bold(filteredRootDependencies.join(', '))} ${
+ ${whiteBrightBgYellowBold('Webpack does not work with native dependencies.')}
+${bold(filteredRootDependencies.join(', '))} ${
         plural ? 'are native dependencies' : 'is a native dependency'
       } and should be installed inside of the "./release/app" folder.
  First, uninstall the packages from "./package.json":
-${chalk.whiteBright.bgGreen.bold('npm uninstall your-package')}
- ${chalk.bold(
+${whiteBrightBgGreenBold('npm uninstall your-package')}
+ ${bold(
    'Then, instead of installing the package to the root "./package.json":',
  )}
-${chalk.whiteBright.bgRed.bold('npm install your-package')}
- ${chalk.bold('Install the package to "./release/app/package.json"')}
-${chalk.whiteBright.bgGreen.bold(
-  'cd ./release/app && npm install your-package',
-)}
+${whiteBrightBgRedBold('npm install your-package')}
+ ${bold('Install the package to "./release/app/package.json"')}
+${whiteBrightBgGreenBold('cd ./release/app && npm install your-package')}
  Read more about native dependencies at:
-${chalk.bold(
+${bold(
   'https://electron-react-boilerplate.js.org/docs/adding-dependencies/#module-structure',
 )}
  `);

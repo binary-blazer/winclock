@@ -110,7 +110,11 @@ function Alarms() {
     });
   };
 
-  const getNextRingTime = (mt: number, time: string, repeat: string[]): string => {
+  const getNextRingTime = (
+    mt: number,
+    time: string,
+    repeat: string[],
+  ): string => {
     const [hours, minutes] = time.split(':').map((t) => parseInt(t, 10));
 
     const now = new Date();
@@ -177,16 +181,16 @@ function Alarms() {
           <div className="flex flex-row items-center justify-between mb-6">
             <h1 className="text-xl font-bold">New Alarm</h1>
             {amPm && (
-          <div className="flex flex-row items-center justify-start mt-2 gap-2">
-            <button
-              className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
-              onClick={() => setAmPmMode(!amPmMode)}
-            >
-              <i className={`fas fa-${amPmMode ? 'sun' : 'moon'}`} />
-              <span className="ml-2">{amPmMode ? 'AM' : 'PM'}</span>
-            </button>
-          </div>
-          )}
+              <div className="flex flex-row items-center justify-start mt-2 gap-2">
+                <button
+                  className={`py-2 px-4 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                  onClick={() => setAmPmMode(!amPmMode)}
+                >
+                  <i className={`fas fa-${amPmMode ? 'sun' : 'moon'}`} />
+                  <span className="ml-2">{amPmMode ? 'AM' : 'PM'}</span>
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2 items-center justify-start mt-2 w-full">
             <div className="flex flex-row gap-2 items-center justify-between w-full">
@@ -305,7 +309,9 @@ function Alarms() {
                 });
 
                 window.electron.ipcRenderer.sendMessage('add-alarm', {
-                  time: militaryTime ? `${String(alarmHours % 12).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}` : `${String(alarmHours).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}`,
+                  time: militaryTime
+                    ? `${String(alarmHours % 12).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}`
+                    : `${String(alarmHours).padStart(2, '0')}:${String(alarmMinutes).padStart(2, '0')}`,
                   label: newAlarmTitle,
                   active: newAlarmActive,
                   repeat: newAlarmRepeatCycle,
@@ -357,10 +363,18 @@ function Alarms() {
                   className="relative alarm p-4 bg-zinc-800/20 rounded-lg w-full gap-6 flex flex-row items-center justify-between transition-all duration-200 ease-in-out hover:shadow-lg"
                 >
                   <div className="flex flex-col items-start justify-center">
-                    <h1 className="clock2 text-5xl">{militaryTime ? alarm.time + ' ' + alarm.amPm : alarm.time}</h1>
+                    <h1 className="clock2 text-5xl">
+                      {militaryTime
+                        ? alarm.time + ' ' + alarm.amPm
+                        : alarm.time}
+                    </h1>
                     <p className="text-sm">
                       <i className="fal fa-clock mr-2" />
-                      {getNextRingTime(alarm.amPm === 'AM' ? 0 : 1, alarm.time, alarm.repeat)}
+                      {getNextRingTime(
+                        alarm.amPm === 'AM' ? 0 : 1,
+                        alarm.time,
+                        alarm.repeat,
+                      )}
                     </p>
                     <p className="text-sm">
                       <i className="fal fa-bell mr-2" />
@@ -480,9 +494,12 @@ function Settings() {
         </div>
       ) : (
         <div className="flex flex-col gap-4 mt-6 w-full">
-          <div className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer" onClick={() => {
-            setMilitaryTime(!militaryTime);
-          }}>
+          <div
+            className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer"
+            onClick={() => {
+              setMilitaryTime(!militaryTime);
+            }}
+          >
             <h1 className="text-lg">AM/PM mode</h1>
             <Switch
               checked={militaryTime}
@@ -498,9 +515,12 @@ function Settings() {
               />
             </Switch>
           </div>
-          <div className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer" onClick={() => {
-            setBackgroundRunning(!backgroundRunning);
-          }}>
+          <div
+            className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer"
+            onClick={() => {
+              setBackgroundRunning(!backgroundRunning);
+            }}
+          >
             <h1 className="text-lg">Background Running</h1>
             <Switch
               checked={backgroundRunning}
@@ -516,9 +536,12 @@ function Settings() {
               />
             </Switch>
           </div>
-          <div className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer" onClick={() => {
-            setAutoBoot(!autoBoot);
-          }}>
+          <div
+            className="flex flex-row gap-6 items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out cursor-pointer"
+            onClick={() => {
+              setAutoBoot(!autoBoot);
+            }}
+          >
             <h1 className="text-lg">Auto Boot</h1>
             <Switch
               checked={autoBoot}
@@ -586,41 +609,41 @@ function Hello() {
         <div className="flex flex-row items-start justify-center h-full w-full">
           <div className="flex flex-col items-center justify-between w-20 px-2 py-12 gap-3 h-full bg-zinc-800/20">
             <div className="flex flex-col w-full justify-center">
-            <div className="relative flex flex-row w-full justify-center">
-              <button
-                className={`py-2 px-4 rounded-lg ${activeTab === 'clock' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
-                onClick={() => handleTab('clock')}
-              >
-                <i className="fas fa-clock" />
-              </button>
-              {activeTab === 'clock' && (
-                <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
-              )}
-            </div>
-            <div className="relative flex flex-row w-full justify-center">
-              <button
-                className={`relative py-2 px-4 rounded-lg ${activeTab === 'alarms' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
-                onClick={() => handleTab('alarms')}
-              >
-                <i className="fas fa-bell" />
-              </button>
-              {activeTab === 'alarms' && (
-                <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
-              )}
-            </div>
+              <div className="relative flex flex-row w-full justify-center">
+                <button
+                  className={`py-2 px-4 rounded-lg ${activeTab === 'clock' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                  onClick={() => handleTab('clock')}
+                >
+                  <i className="fas fa-clock" />
+                </button>
+                {activeTab === 'clock' && (
+                  <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
+                )}
+              </div>
+              <div className="relative flex flex-row w-full justify-center">
+                <button
+                  className={`relative py-2 px-4 rounded-lg ${activeTab === 'alarms' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                  onClick={() => handleTab('alarms')}
+                >
+                  <i className="fas fa-bell" />
+                </button>
+                {activeTab === 'alarms' && (
+                  <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
+                )}
+              </div>
             </div>
             <div className="flex flex-col w-full justify-end items-end">
-            <div className="relative flex flex-row w-full justify-center items-end">
-              <button
-                className={`relative py-2 px-4 rounded-lg ${activeTab === 'settings' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
-                onClick={() => handleTab('settings')}
-              >
-                <i className="fas fa-cog" />
-              </button>
-              {activeTab === 'settings' && (
-                <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
-              )}
-            </div>
+              <div className="relative flex flex-row w-full justify-center items-end">
+                <button
+                  className={`relative py-2 px-4 rounded-lg ${activeTab === 'settings' ? 'bg-zinc-800/40 text-zinc-50' : 'text-zinc-300'} hover:bg-zinc-800/60 transition-colors duration-200 ease-in-out`}
+                  onClick={() => handleTab('settings')}
+                >
+                  <i className="fas fa-cog" />
+                </button>
+                {activeTab === 'settings' && (
+                  <span className="absolute top-1/2 left-[-2px] w-1 h-1/2 -translate-y-1/2 bg-white rounded-lg" />
+                )}
+              </div>
             </div>
           </div>
           <div className="flex flex-col items-center justify-center w-full h-full">
