@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 
 function Clock() {
   const [time, setTime] = useState(new Date());
+  const [militaryTime, setMilitaryTime] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -23,7 +24,17 @@ function Clock() {
     return () => clearInterval(timer);
   }, []);
 
-  const formattedTime = `${time.toLocaleTimeString()}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`;
+  useEffect(() => {
+    window.electron.ipcRenderer.once('load-settings', (arg: any) => {
+      setMilitaryTime(arg.militaryTime);
+    });
+
+    window.electron.ipcRenderer.sendMessage('load-settings');
+  }, []);
+
+  const formattedTime = militaryTime
+    ? `${time.toLocaleTimeString()}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`
+    : `${time.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}.${String(time.getMilliseconds()).padStart(3, '0').slice(0, 2)}`;
 
   return <div className="clock">{formattedTime}</div>;
 }
@@ -48,6 +59,7 @@ function Alarms() {
   const [alarmTimeActive, setAlarmTimeActive] = useState('hours'); // hours, minutes
   const [newAlarmRepeatCycle, setNewAlarmRepeatCycle] = useState<string[]>([]); // array of selected days
   const [newAlarmOpen, setNewAlarmOpen] = useState(false);
+  const [militaryTime, setMilitaryTime] = useState(false);
 
   useEffect(() => {
     window.electron.ipcRenderer.once('alarms', (arg: any) => {
@@ -55,6 +67,14 @@ function Alarms() {
     });
 
     window.electron.ipcRenderer.sendMessage('alarms');
+  }, []);
+
+  useEffect(() => {
+    window.electron.ipcRenderer.once('load-settings', (arg: any) => {
+      setMilitaryTime(arg.militaryTime);
+    });
+
+    window.electron.ipcRenderer.sendMessage('load-settings');
   }, []);
 
   const toggleDay = (day: string) => {
@@ -301,7 +321,7 @@ function Alarms() {
                   className="relative alarm p-4 bg-zinc-800/20 rounded-lg w-full gap-6 flex flex-row items-center justify-between hover:-translate-y-1 transition-transform duration-200 ease-in-out hover:shadow-lg"
                 >
                   <div className="flex flex-col items-start justify-center">
-                    <h1 className="clock2 text-5xl">{alarm.time}</h1>
+                    <h1 className="clock2 text-5xl">{militaryTime ? alarm.time : new Date(`1970-01-01T${alarm.time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</h1>
                     <p className="text-sm">
                       <i className="fal fa-clock mr-2" />
                       {getNextRingTime(alarm.time, alarm.repeat)}
