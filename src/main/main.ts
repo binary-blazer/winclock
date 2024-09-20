@@ -75,6 +75,9 @@ const applySettings = async () => {
   }
 
   // Apply military time setting to the app (if needed)
+  if (mainWindow) {
+    mainWindow.webContents.send('apply-settings', { militaryTime });
+  }
 };
 
 app
